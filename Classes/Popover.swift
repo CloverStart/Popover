@@ -68,9 +68,9 @@ open class Popover: UIView {
   public fileprivate(set) var blackOverlay: UIControl = UIControl()
 
   fileprivate var containerView: UIView!
-  fileprivate var contentView: UIView!
+  open var contentView: UIView!
   fileprivate var contentViewFrame: CGRect!
-  fileprivate var arrowShowPoint: CGPoint!
+  open var arrowShowPoint: CGPoint!
 
   public init() {
     super.init(frame: .zero)
