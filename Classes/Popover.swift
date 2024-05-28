@@ -25,6 +25,7 @@ public enum PopoverOption {
   case initialSpringVelocity(CGFloat)
   case sideOffset(CGFloat)
   case borderColor(UIColor)
+  case masksToBounds(Bool)
 }
 
 @objc public enum PopoverType: Int {
@@ -56,6 +57,7 @@ open class Popover: UIView {
   open var initialSpringVelocity: CGFloat = 3
   open var sideOffset: CGFloat = 6.0
   open var borderColor: UIColor?
+  open var masksToBounds: Bool = true
 
   // custom closure
   open var willShowHandler: (() -> ())?
@@ -204,7 +206,7 @@ open class Popover: UIView {
     self.contentView = contentView
     self.contentView.backgroundColor = UIColor.clear
     self.contentView.layer.cornerRadius = self.cornerRadius
-    self.contentView.layer.masksToBounds = true
+    self.contentView.layer.masksToBounds = self.masksToBounds
     self.arrowShowPoint = point
     self.show()
   }
@@ -538,6 +540,8 @@ private extension Popover {
           self.sideOffset = value
         case let .borderColor(value):
           self.borderColor = value
+        case let .masksToBounds(value):
+          self.masksToBounds = value
         }
       }
     }
