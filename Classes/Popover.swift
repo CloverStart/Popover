@@ -26,6 +26,7 @@ public enum PopoverOption {
   case sideOffset(CGFloat)
   case borderColor(UIColor)
   case masksToBounds(Bool)
+  case customArrowImg(UIImage)
 }
 
 @objc public enum PopoverType: Int {
@@ -58,6 +59,8 @@ open class Popover: UIView {
   open var sideOffset: CGFloat = 6.0
   open var borderColor: UIColor?
   open var masksToBounds: Bool = true
+  open var customArrowImg: UIImage? = nil
+  open var customArrowImgWH: CGFloat = 40.0
 
   // custom closure
   open var willShowHandler: (() -> ())?
@@ -71,6 +74,12 @@ open class Popover: UIView {
   open var contentView: UIView!
   fileprivate var contentViewFrame: CGRect!
   open var arrowShowPoint: CGPoint!
+    
+  open lazy var customArrowImgV: UIImageView = {
+        let view  = UIImageView()
+        view.frame.size = CGSizeMake(customArrowImgWH, customArrowImgWH)
+        return view
+    }()
 
   public init() {
     super.init(frame: .zero)
@@ -542,6 +551,8 @@ private extension Popover {
           self.borderColor = value
         case let .masksToBounds(value):
           self.masksToBounds = value
+        case let .customArrowImg(value):
+          self.customArrowImg = value
         }
       }
     }
@@ -609,6 +620,30 @@ private extension Popover {
     self.frame = frame
   }
 
+  func addCustomPointImgV() { // yb： add 自定义Img
+      guard let img = self.customArrowImg else {return}
+      if let _ = self.customArrowImgV.superview {self.customArrowImgV.removeFromSuperview()}
+      
+      let arrowPoint = self.containerView.convert(self.arrowShowPoint, to: self)
+      let arrow_w_half = customArrowImgWH / 2.0
+      self.customArrowImgV.image = img
+      switch self.popoverType  {
+      case .up:
+          self.customArrowImgV.frame.origin.x = arrowPoint.x - arrow_w_half
+          self.customArrowImgV.frame.origin.y = self.bounds.height - arrow_w_half
+      case .down, .auto:
+          self.customArrowImgV.frame.origin.x = arrowPoint.x - arrow_w_half
+          self.customArrowImgV.frame.origin.y = -arrow_w_half
+      case .left:
+          self.customArrowImgV.frame.origin.x = self.bounds.width - arrow_w_half
+          self.customArrowImgV.frame.origin.y = self.bounds.height * 0.5 - arrow_w_half
+      case .right:
+          self.customArrowImgV.frame.origin.x = arrowPoint.x - arrow_w_half
+          self.customArrowImgV.frame.origin.y = self.bounds.height * 0.5 - arrow_w_half
+      }
+      self.addSubview(self.customArrowImgV)
+  }
+    
   func createHighlightLayer(fromView: UIView, inView: UIView) {
     let path = UIBezierPath(rect: inView.bounds)
     let highlightRect = inView.convert(fromView.frame, from: fromView.superview)
@@ -635,8 +670,10 @@ private extension Popover {
     }
     self.addSubview(self.contentView)
     self.containerView.addSubview(self)
-
+      
     self.create()
+    self.addCustomPointImgV()
+      
     self.transform = CGAffineTransform(scaleX: 0.0, y: 0.0)
     self.willShowHandler?()
     UIView.animate(
